@@ -75,3 +75,13 @@ def test_limited_size(three_item_pool: Pool):
                 with three_item_pool.item():
                     with three_item_pool.item():
                         pass
+
+
+def test_eager_pool(factory):
+    pool = Pool(factory, maxsize=3, eager=True)
+    assert len(pool._items) == 3
+
+
+def test_eager_pool_with_invalid_factory(invalid_factory):
+    with pytest.raises(UnableToCreateValidObject):
+        Pool(invalid_factory, maxsize=3, eager=True)
