@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "generic-pool"
-version = "0.1.0"
+version = "0.1.1"
 description = "A generic object pool implementation"
 authors = ["Frédérique Mittelstaedt <pypi@gfm.io>"]
 license = "MIT"
