@@ -32,13 +32,10 @@ class Pool(Generic[T]):
 
     def acquire(self) -> T:
         """Acquire a new item from the pool"""
-        is_new = False
-
         try:
             item = self._available_items.get(block=False)
         except Empty:
-            item = self._create()
-            is_new = True
+            return self._create()
 
         if item not in self._items:
             raise Unmanaged(item)
@@ -49,14 +46,10 @@ class Pool(Generic[T]):
             return item
         except Invalid:
             self._destroy(item)
+            return self.acquire()
         except Exception as e:
             self._destroy(item)
             raise e
-
-        if is_new:
-            raise UnableToCreateValidObject()
-        else:
-            return self.acquire()
 
     def release(self, item: T) -> None:
         """Release an item back to the pool"""
@@ -106,8 +99,14 @@ class Pool(Generic[T]):
     def _create(self) -> T:
         if self.full():
             raise Full()
+
         item = self._factory.create()
         self._items.append(item)
+
+        if not self._factory.validate(item):
+            self._destroy(item)
+            raise UnableToCreateValidObject()
+
         return item
 
     def _destroy(self, item: T) -> None:
