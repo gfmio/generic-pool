@@ -1,10 +1,10 @@
-from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from queue import Empty, Full, LifoQueue, Queue
-from typing import Callable, Generic, List, Optional, TypeVar
+from queue import Empty, Full, LifoQueue
+from typing import Generic, List, Optional, TypeVar
 
 from .errors import Invalid, UnableToCreateValidObject, Unmanaged
 from .factory import Factory
+from .queue_like import QueueLike, QueueLikeFactory
 
 T = TypeVar("T")
 
@@ -15,7 +15,7 @@ class Pool(Generic[T]):
     def __init__(
         self,
         factory: Factory[T],
-        queue_cls: Callable[[], Queue] = LifoQueue,
+        queue_cls: QueueLikeFactory[T] = LifoQueue,
         maxsize: Optional[int] = None,
         eager: bool = False,
     ):
@@ -25,7 +25,7 @@ class Pool(Generic[T]):
         self.eager = eager
 
         self._items: List[T] = []
-        self._available_items: Queue[T] = self._queue_cls(maxsize=self.maxsize or 0)
+        self._available_items: QueueLike[T] = self._queue_cls(maxsize=self.maxsize or 0)
 
         if self.eager:
             self.fill()
@@ -47,9 +47,9 @@ class Pool(Generic[T]):
         except Invalid:
             self._destroy(item)
             return self.acquire()
-        except Exception as e:
+        except Exception as exception:
             self._destroy(item)
-            raise e
+            raise exception
 
     def release(self, item: T) -> None:
         """Release an item back to the pool"""
@@ -70,10 +70,10 @@ class Pool(Generic[T]):
         return self.maxsize is not None and len(self._items) >= self.maxsize
 
     def busy(self) -> bool:
-        self._available_items.empty()
+        return self._available_items.empty()
 
     def idle(self) -> bool:
-        self._available_items.full()
+        return self._available_items.full()
 
     def drain(self) -> None:
         while not self.empty():

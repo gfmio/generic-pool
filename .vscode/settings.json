@@ -4,7 +4,6 @@
     "source.fixAll": true,
     "source.organizeImports": true
   },
-  "python.pythonPath": ".venv/bin/python",
   "python.linting.enabled": true,
   "python.formatting.provider": "black",
 }
