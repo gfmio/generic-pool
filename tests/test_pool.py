@@ -2,7 +2,9 @@ from queue import Full
 
 import pytest
 
-from generic_pool import Factory, Pool, UnableToCreateValidObject
+from generic_pool import Factory
+from generic_pool import Pool
+from generic_pool import UnableToCreateValidObject
 
 
 class MyObject:
