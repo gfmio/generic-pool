@@ -1,4 +1,6 @@
-from typing import Optional, Protocol, TypeVar
+from typing import Optional
+from typing import Protocol
+from typing import TypeVar
 
 T = TypeVar("T")
 
