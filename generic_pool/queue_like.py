@@ -30,6 +30,6 @@ class QueueLike(Protocol[T]):
         ...
 
 
-class QueueLikeStatic(Protocol[T]):
+class QueueLikeFactory(Protocol[T]):
     def __call__(self, maxsize: Optional[int] = None) -> QueueLike[T]:
         ...

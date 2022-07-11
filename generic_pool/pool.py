@@ -1,11 +1,10 @@
-from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from queue import Empty, Full, LifoQueue, Queue
-from typing import Callable, Generic, List, Optional, Type, TypeVar
+from queue import Empty, Full, LifoQueue
+from typing import Generic, List, Optional, TypeVar
 
 from .errors import Invalid, UnableToCreateValidObject, Unmanaged
 from .factory import Factory
-from .queue_like import QueueLike, QueueLikeStatic
+from .queue_like import QueueLike, QueueLikeFactory
 
 T = TypeVar("T")
 
@@ -16,7 +15,7 @@ class Pool(Generic[T]):
     def __init__(
         self,
         factory: Factory[T],
-        queue_cls: QueueLikeStatic[T] = LifoQueue,
+        queue_cls: QueueLikeFactory[T] = LifoQueue,
         maxsize: Optional[int] = None,
         eager: bool = False,
     ):
