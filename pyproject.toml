@@ -12,7 +12,7 @@ keywords = ["pool", "generic"]
 include = ["NOTICE"]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.8"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b0"
