@@ -76,6 +76,20 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "coverage"
+version = "6.4.1"
+description = "Code coverage measurement for Python"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.11.0a6\" and extra == \"toml\""}
+
+[package.extras]
+toml = ["tomli"]
+
+[[package]]
 name = "flake8"
 version = "4.0.1"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -236,6 +250,21 @@ toml = "*"
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [[package]]
+name = "pytest-cov"
+version = "3.0.0"
+description = "Pytest plugin for measuring coverage."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+coverage = {version = ">=5.2.1", extras = ["toml"]}
+pytest = ">=4.6"
+
+[package.extras]
+testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
+
+[[package]]
 name = "regex"
 version = "2021.4.4"
 description = "Alternative regular expression module, to replace re."
@@ -301,7 +330,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7"
-content-hash = "722bdfed47fb95765e222d63cb14a810a45a140b951c72100f9bc1f8241e5b80"
+content-hash = "594b9645c517bf2cf6434185f873b097c20d3809f1de0ff76f2ef32bc8688241"
 
 [metadata.files]
 appdirs = []
@@ -311,6 +340,7 @@ black = []
 classify-imports = []
 click = []
 colorama = []
+coverage = []
 flake8 = []
 importlib-metadata = []
 iniconfig = []
@@ -325,6 +355,7 @@ pycodestyle = []
 pyflakes = []
 pyparsing = []
 pytest = []
+pytest-cov = []
 regex = []
 reorder-python-imports = []
 toml = []
