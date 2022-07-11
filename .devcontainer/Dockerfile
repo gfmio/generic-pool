@@ -1,32 +1,61 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/blob/v0.163.0/containers/python-3/.devcontainer/base.Dockerfile
-ARG VARIANT="3.9"
-FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
+ARG tag="3.9-buster"
+ARG workdir="/src"
+ARG user="vscode"
+ARG poetry_version="1.1.13"
+ARG task_version="v3.12.1"
 
-# [Optional] Allow the vscode user to pip install globally w/o sudo
-ENV PIP_TARGET=/usr/local/pip-global
-ENV PYTHONPATH=${PIP_TARGET}:${PYTHONPATH}
-ENV PATH=${PIP_TARGET}/bin:${PATH}
-RUN if ! cat /etc/group | grep -e "^pip-global:" > /dev/null 2>&1; then groupadd -r pip-global; fi \
-  && usermod -a -G pip-global vscode \
-  && umask 0002 && mkdir -p ${PIP_TARGET} \
-  && chown :pip-global ${PIP_TARGET} \
-  && ( [ ! -f "/etc/profile.d/00-restore-env.sh" ] || sed -i -e "s/export PATH=/export PATH=\/usr\/local\/pip-global:/" /etc/profile.d/00-restore-env.sh )
+FROM python:${tag}
 
-# [Option] Install Node.js
-ARG INSTALL_NODE="true"
-ARG NODE_VERSION="lts/*"
-RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
+ARG workdir
+ARG user
+ARG poetry_version
+ARG task_version
 
-# [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
-# COPY requirements.txt /tmp/pip-tmp/
-# RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
-#    && rm -rf /tmp/pip-tmp
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+WORKDIR /tmp
 
-RUN pip install poetry
+# Install common packages
 
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
+RUN apt-get update --allow-releaseinfo-change && \
+    apt-get -y install --no-install-recommends zsh curl git sudo vim ca-certificates
+
+# Set the root password
+
+RUN echo "root:root" | chpasswd
+
+# Add the non-root user
+
+RUN adduser ${user} --shell /bin/zsh
+RUN adduser ${user} sudo
+RUN echo "${user}:${user}" | chpasswd
+
+# Install Oh My Zsh for the user
+
+RUN su ${user} -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Install Taskfile
+
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin ${task_version}
+
+# Install poetry
+
+RUN mkdir /opt/poetry
+ENV POETRY_HOME=/opt/poetry
+ENV PATH="/opt/poetry/bin:$PATH"
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/${poetry_version}/get-poetry.py | python - --version ${poetry_version}
+
+# Change the owner of the poetry installation to vscode
+
+RUN chown -R ${user} /opt/poetry
+
+# Set venv
+
+ENV VIRTUAL_ENV="${workdir}/.venv"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+WORKDIR ${workdir}
+
+USER ${user}

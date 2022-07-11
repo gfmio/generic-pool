@@ -18,4 +18,4 @@ class Factory(ABC, Generic[T]):
 
     def destroy(self, item: T) -> None:
         """Release resources managed by the `T` object"""
-        return True
+        return
