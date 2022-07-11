@@ -1,0 +1,66 @@
+# https://taskfile.dev
+
+version: "3"
+
+env:
+  VIRTUAL_ENV:
+    sh: echo `pwd`"/.venv"
+  PATH:
+    sh: echo `pwd`"/.venv/bin:$PATH"
+
+tasks:
+  default:
+    cmds:
+      - task: test
+      - task: lint
+      - task: build
+  silent: true
+
+  install:
+    cmds:
+      - poetry install
+
+  test:
+    cmds:
+      - poetry run pytest --cov=generic_pool
+
+  lint:
+    cmds:
+      - task: reorder-python-imports
+      - task: black
+      - task: flake8
+      - task: mypy
+
+  build:
+    cmds:
+      - poetry build
+
+  publish:
+    cmds:
+      - poetry publish -u __token__
+
+  publish:dryRun:
+    cmds:
+      - poetry publish --dry-run -u __token__ -p token
+
+  flake8:
+    cmds:
+      - poetry run flake8 generic_pool tests --count  --show-source --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+
+  black:
+    cmds:
+      - poetry run black --check --verbose generic_pool tests
+
+  reorder-python-imports:
+    cmds:
+      - find generic_pool tests -type f -name '*.py' -exec poetry run reorder-python-imports {} +;
+
+  mypy:
+    cmds:
+      - poetry run mypy .
+
+  devcontainer:postCreateCommand:
+    cmds:
+      - python -m venv .venv
+      - source .venv/bin/activate
+      - task: install

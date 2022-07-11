@@ -12,12 +12,14 @@ keywords = ["pool", "generic"]
 include = ["NOTICE"]
 
 [tool.poetry.dependencies]
-python = ">=3.6.2"
+python = ">=3.7"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b0"
 mypy = "^0.961"
 pytest = "^6.2.3"
+flake8 = "^4.0.1"
+reorder-python-imports = "^3.8.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
